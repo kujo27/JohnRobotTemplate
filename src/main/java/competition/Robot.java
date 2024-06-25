@@ -2,9 +2,13 @@
 package competition;
 
 import competition.injection.components.BaseRobotComponent;
+import competition.injection.components.DaggerPracticeRobotComponent;
 import competition.injection.components.DaggerRobotComponent;
+import competition.injection.components.DaggerRoboxComponent;
 import competition.injection.components.DaggerSimulationComponent;
+import competition.subsystems.drive.DriveSubsystem;
 import competition.subsystems.pose.PoseSubsystem;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import xbot.common.command.BaseRobot;
 import xbot.common.math.FieldPose;
@@ -17,11 +21,32 @@ public class Robot extends BaseRobot {
         super.initializeSystems();
         getInjectorComponent().subsystemDefaultCommandMap();
         getInjectorComponent().operatorCommandMap();
+
+        dataFrameRefreshables.add((DriveSubsystem)getInjectorComponent().driveSubsystem());
+        dataFrameRefreshables.add(getInjectorComponent().poseSubsystem());
     }
 
     protected BaseRobotComponent createDaggerComponent() {
         if (BaseRobot.isReal()) {
-            return DaggerRobotComponent.create();
+            // Initialize the contract to use if this is a fresh robot. Assume competition since that's the safest.
+            if (!Preferences.containsKey("ContractToUse")) {
+                Preferences.setString("ContractToUse", "Competition");
+            }
+
+            String chosenContract = Preferences.getString("ContractToUse", "Competition");
+
+            switch (chosenContract) {
+                case "Practice":
+                    System.out.println("Using practice contract");
+                    return DaggerPracticeRobotComponent.create();
+                case "Robox":
+                    System.out.println("Using Robox contract");
+                    return DaggerRoboxComponent.create();
+                default:
+                    System.out.println("Using Competition contract");
+                    // In all other cases, return the competition component.
+                    return DaggerRobotComponent.create();
+            }
         } else {
             return DaggerSimulationComponent.create();
         }
@@ -38,7 +63,7 @@ public class Robot extends BaseRobot {
         // to start in a disabled state (as it would on the field). However, this does save you the 
         // hassle of navigating to the DS window and re-enabling the simulated robot.
         DriverStationSim.setEnabled(true);
-        webots.setFieldPoseOffset(getFieldOrigin());
+        //webots.setFieldPoseOffset(getFieldOrigin());
     }
 
     private FieldPose getFieldOrigin() {
