@@ -24,4 +24,8 @@ public class CompetitionContract extends ElectricalContract {
     public DeviceInfo getRightLeader() {
         return new DeviceInfo("RightLeader", 2, false, simulationScalingValue);
     }
+
+    public DeviceInfo getCollectorMotor() {
+        return new DeviceInfo("CollectorMotor", 37, false);
+    }
 }

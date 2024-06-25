@@ -1,5 +1,7 @@
 package competition.subsystems.collector;
 
+import competition.electrical_contract.ElectricalContract;
+import competition.electrical_contract.PracticeContract;
 import xbot.common.command.BaseSubsystem;
 import xbot.common.controls.actuators.XCANSparkMax;
 import xbot.common.controls.sensors.XTimer;
@@ -33,8 +35,8 @@ public class CollectorMotor extends BaseSubsystem {
     IntakeState intakeState = IntakeState.stopped;
 
     @Inject
-    public CollectorMotor(XCANSparkMax.XCANSparkMaxFactory xcanSparkMaxFactory, PropertyFactory propertyFactory){
-        this.collectorMotor = xcanSparkMaxFactory.create(new DeviceInfo(25, true), getPrefix(), "CollectorMotor");
+    public CollectorMotor(XCANSparkMax.XCANSparkMaxFactory xcanSparkMaxFactory, PropertyFactory propertyFactory, ElectricalContract contract){
+        this.collectorMotor = xcanSparkMaxFactory.createWithoutProperties(contract.getCollectorMotor(), getPrefix(), "CollectorMotor");
         propertyFactory.setPrefix(this);
 
         currentTime = propertyFactory.createEphemeralProperty("currentTime: ", 0);
